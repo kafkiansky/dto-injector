@@ -1,0 +1,18 @@
+version: '3.5'
+
+services:
+  backend:
+    build:
+      context: ./docker/php-fpm
+    volumes:
+      - ./:/app:delegated
+    restart: always
+    container_name: php-dto
+
+  cli:
+    build:
+      context: ./docker/php-cli
+    volumes:
+      - ./:/app:delegated
+    command: sleep 1000000
+    container_name: php-dto-cli
