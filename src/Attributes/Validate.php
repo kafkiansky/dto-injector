@@ -14,7 +14,9 @@ final class Validate
      * @psalm-param non-empty-list<string> $rules
      * @psalm-param array<string, string>  $messages
      */
-    public function __construct(public array $rules, public array $messages = []) {}
+    public function __construct(public array $rules = [], public array $messages = [])
+    {
+    }
 
     /**
      * @return bool

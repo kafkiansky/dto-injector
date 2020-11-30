@@ -10,7 +10,9 @@ final class Extractor
 {
     /**
      * @param Dto $dto
+     *
      * @psalm-return Result
+     * @return Result
      */
     public function extract(Dto $dto): Result
     {
@@ -24,7 +26,7 @@ final class Extractor
             $rules[$name] = $validateAttribute->rules;
 
             if ($validateAttribute->messagesExists()) {
-                $messages[$name] = $validateAttribute->messages;
+                $messages[key($validateAttribute->messages)] = reset($validateAttribute->messages);
             }
         }
 
@@ -35,6 +37,7 @@ final class Extractor
      * @param Dto $dto
      *
      * @psalm-return array<\ReflectionAttribute>
+     * @return array
      */
     private static function attributesOf(Dto $dto): array
     {
