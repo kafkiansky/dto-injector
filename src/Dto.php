@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Kafkiansky\DtoInjector;
 
+use Kafkiansky\DtoInjector\Resolver\DtoResolver;
 use Kafkiansky\DtoInjector\Resolver\NativeDtoResolver;
 
 /**
- * @template R of Resolver
+ * @template R of DtoResolver
  */
 abstract class Dto
 {

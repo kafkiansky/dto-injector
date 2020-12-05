@@ -1,4 +1,4 @@
-FROM php:8.0.0RC4-cli-buster
+FROM php:8.0.0-cli
 
 RUN apt-get update && apt-get install -y \
     libpq-dev \

@@ -11,26 +11,31 @@ final class Extractor
     /**
      * @param Dto $dto
      *
-     * @psalm-return Result
      * @return Result
      */
     public function extract(Dto $dto): Result
     {
-        $rules    = [];
+        /** @psalm-var array<array-key, array<array-key, string>> $rules */
+        $rules = [];
+
+        /** @psalm-var array<array-key, string> $messages */
         $messages = [];
 
         foreach (self::attributesOf($dto) as $name => $attribute) {
             /** @var Validate $validateAttribute */
             $validateAttribute = $attribute->newInstance();
 
-            $rules[$name] = $validateAttribute->rules;
+            if ($validateAttribute->rulesExists()) {
+                $rules[$name] = $validateAttribute->rules;
+            }
 
             if ($validateAttribute->messagesExists()) {
-                $messages[key($validateAttribute->messages)] = reset($validateAttribute->messages);
+                $messages[] = $validateAttribute->messages;
             }
         }
 
-        return new Result($rules, $messages);
+        /** @psalm-suppress InvalidArgument */
+        return new Result($rules, array_merge(...$messages));
     }
 
     /**
@@ -45,7 +50,7 @@ final class Extractor
 
         $attributes = [];
 
-        foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+        foreach ($reflection->getProperties() as $property) {
             $propertyAttributes = $property->getAttributes(Validate::class);
 
             if (0 !== count($propertyAttributes)) {

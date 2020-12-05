@@ -9,6 +9,7 @@ use Kafkiansky\DtoInjector\Resolver\DtoResolver;
 final class DtoResolverException extends \RuntimeException
 {
     /**
+     * @psalm-pure
      * @param string $invalidResolver
      *
      * @return DtoResolverException

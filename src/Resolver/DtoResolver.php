@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Validation\Validator as ValidationResult;
 use Kafkiansky\DtoInjector\Attributes\Extractor;
 use Kafkiansky\DtoInjector\Dto;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Kafkiansky\DtoInjector\Mapper\ObjectPopulator;
 
 abstract class DtoResolver
 {
     /**
-     * @var DenormalizerInterface
+     * @var ObjectPopulator
      */
-    protected DenormalizerInterface $denormalizer;
+    protected ObjectPopulator $objectPopulator;
 
     /**
      * @var Validator
@@ -29,21 +29,21 @@ abstract class DtoResolver
     private Extractor $extractor;
 
     /**
-     * @param DenormalizerInterface $denormalizer
-     * @param Validator             $validator
-     * @param Extractor             $extractor
+     * @param ObjectPopulator $objectPopulator
+     * @param Validator       $validator
+     * @param Extractor       $extractor
      */
-    public function __construct(DenormalizerInterface $denormalizer, Validator $validator, Extractor $extractor)
+    public function __construct(ObjectPopulator $objectPopulator, Validator $validator, Extractor $extractor)
     {
-        $this->denormalizer = $denormalizer;
-        $this->validator    = $validator;
-        $this->extractor    = $extractor;
+        $this->objectPopulator = $objectPopulator;
+        $this->validator       = $validator;
+        $this->extractor       = $extractor;
     }
 
     /**
      * @param Request $request
      *
-     * @psalm-return non-empty-array<string, mixed>
+     * @psalm-return array<array-key, mixed>
      * @return array
      */
     abstract protected function prepareForResolving(Request $request): array;
@@ -56,22 +56,21 @@ abstract class DtoResolver
     abstract protected function onValidationFailed(ValidationResult $validator): \Exception;
 
     /**
-     * @psalm-param non-empty-array<string, mixed>
+     * @psalm-param array<array-key, mixed> $data
      * @param array $data
      * @param Dto   $dto
      *
-     * @throws \Exception
-     * @throws \Throwable
-     *
      * @return Dto
      */
-    abstract protected function doDenormalize(array $data, Dto $dto): Dto;
+    protected function doMap(array $data, Dto $dto): Dto
+    {
+        return $this->objectPopulator->populate($data, $dto);
+    }
 
     /**
      * @param Request $request
      * @param Dto     $dto
      *
-     * @throws \Exception
      * @throws \Throwable
      *
      * @return Dto
@@ -90,6 +89,6 @@ abstract class DtoResolver
             throw $this->onValidationFailed($validation);
         }
 
-        return $this->doDenormalize($mergedData, $dto);
+        return $this->doMap($mergedData, $dto);
     }
 }

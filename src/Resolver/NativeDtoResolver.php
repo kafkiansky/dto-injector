@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Kafkiansky\DtoInjector\Resolver;
 
 use Illuminate\Contracts\Routing\UrlGenerator;
-use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Contracts\Validation\Validator;
 use Kafkiansky\DtoInjector\Attributes\Extractor;
-use Kafkiansky\DtoInjector\Dto;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Kafkiansky\DtoInjector\Mapper\ObjectPopulator;
 
 final class NativeDtoResolver extends DtoResolver
 {
@@ -21,18 +20,18 @@ final class NativeDtoResolver extends DtoResolver
     private UrlGenerator $urlGenerator;
 
     /**
-     * @param DenormalizerInterface $denormalizer
-     * @param Factory               $validator
-     * @param Extractor             $extractor
-     * @param UrlGenerator          $urlGenerator
+     * @param ObjectPopulator   $objectPopulator
+     * @param ValidationFactory $validator
+     * @param Extractor         $extractor
+     * @param UrlGenerator      $urlGenerator
      */
     public function __construct(
-        DenormalizerInterface $denormalizer,
-        Factory $validator,
+        ObjectPopulator $objectPopulator,
+        ValidationFactory $validator,
         Extractor $extractor,
         UrlGenerator $urlGenerator
     ) {
-        parent::__construct($denormalizer, $validator, $extractor);
+        parent::__construct($objectPopulator, $validator, $extractor);
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -52,16 +51,5 @@ final class NativeDtoResolver extends DtoResolver
         return (new ValidationException($validator))
             ->errorBag('default')
             ->redirectTo($this->urlGenerator->previous());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function doDenormalize(array $data, Dto $dto): Dto
-    {
-        /** @var Dto $mappedDto */
-        $mappedDto = $this->denormalizer->denormalize($data, get_class($dto), 'array');
-
-        return $mappedDto;
     }
 }

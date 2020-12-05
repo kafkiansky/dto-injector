@@ -11,8 +11,8 @@ namespace Kafkiansky\DtoInjector\Attributes;
 final class Validate
 {
     /**
-     * @psalm-param non-empty-list<string> $rules
-     * @psalm-param array<string, string>  $messages
+     * @psalm-param array<array-key, array<array-key, string>> $rules
+     * @psalm-param array<array-key, string>                   $messages
      */
     public function __construct(public array $rules = [], public array $messages = [])
     {
@@ -24,5 +24,13 @@ final class Validate
     public function messagesExists(): bool
     {
         return !empty($this->messages);
+    }
+
+    /**
+     * @return bool
+     */
+    public function rulesExists(): bool
+    {
+        return !empty($this->rules);
     }
 }

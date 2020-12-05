@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace Kafkiansky\DtoInjector\Resolver;
 
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Kafkiansky\DtoInjector\Dto;
 use Kafkiansky\DtoInjector\Exceptions\DtoResolverException;
 
-final class CompositeDtoResolver
+final class DtoResolverQualifier
 {
     /**
-     * @var Container
+     * @var callable
      */
-    private Container $container;
+    private $serviceLocator;
 
-    public function __construct(Container $container)
+    public function __construct(callable $serviceLocator)
     {
-        $this->container = $container;
+        $this->serviceLocator = $serviceLocator;
     }
 
     /**
@@ -29,9 +28,9 @@ final class CompositeDtoResolver
      *
      * @return Dto
      */
-    public function resolve(Request $request, Dto $dto): Dto
+    public function qualify(Request $request, Dto $dto): Dto
     {
-        $resolver = $this->container->get($dto::resolvedBy());
+        $resolver = ($this->serviceLocator)($dto::resolvedBy());
 
         if (!($resolver instanceof DtoResolver)) {
             throw DtoResolverException::invalidResolverProvided($dto::resolvedBy());
